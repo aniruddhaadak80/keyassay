@@ -1,20 +1,33 @@
-import { Suspense } from "react";
-import { verifyEngineCitations, fetchResearchSignals } from "@/lib/sources/arxiv";
+"use client";
+
+import { useEffect, useState } from "react";
 import { SourceBadge } from "@/components/grade-mark";
+import type { CitationVerification, LivePayload } from "@/lib/types";
+import type { ResearchSignal } from "@/lib/sources/arxiv";
 
 /**
  * The live citation and research panel.
  *
- * arXiv is a third party on the critical path of a page that should not wait for
- * it. Both blocks are therefore streamed in behind a Suspense boundary, so the
- * page paints and becomes usable immediately and the literature fills in when it
- * arrives. If arXiv is slow or rate-limited the panel says so instead of holding
- * the whole page hostage.
+ * arXiv is a third party, and it used to be on the critical path of the landing
+ * page: both blocks were async server components streamed in behind a Suspense
+ * boundary. That works right up until a request hangs, and when it did, React's
+ * RSC client failed the stream with an internal "Expected static flag was
+ * missing" error and the page never became interactive.
+ *
+ * So nothing here suspends. The server renders the panel immediately and the
+ * browser fetches /api/standards, which already performs the arXiv lookup. A slow
+ * or rate-limited arXiv now costs a late panel and a truthful label, never a
+ * broken page.
  */
+
+interface StandardsPayload {
+  verification?: CitationVerification[];
+  research?: LivePayload<ResearchSignal[]> | null;
+}
 
 function CitationSkeleton() {
   return (
-    <div className="mt-4 space-y-3" aria-hidden="true">
+    <div className="mt-5 space-y-3" aria-hidden="true">
       <div className="h-20 animate-pulse rounded-sm bg-parchment-200" />
       <div className="h-20 animate-pulse rounded-sm bg-parchment-200" />
       <span className="sr-only">Checking the cited papers against arXiv</span>
@@ -22,8 +35,11 @@ function CitationSkeleton() {
   );
 }
 
-async function CitationPanel() {
-  const citations = await verifyEngineCitations().catch(() => []);
+function ResearchSkeleton() {
+  return <div className="mt-10 h-40 animate-pulse rounded-sm bg-parchment-200" aria-hidden="true" />;
+}
+
+function CitationPanel({ citations }: { citations: CitationVerification[] }) {
   const allVerified = citations.length > 0 && citations.every((entry) => entry.found && entry.titleMatches);
 
   return (
@@ -104,9 +120,11 @@ async function CitationPanel() {
   );
 }
 
-async function ResearchPanel() {
-  const research = await fetchResearchSignals(6).catch(() => null);
-
+function ResearchPanel({
+  research,
+}: {
+  research: StandardsPayload["research"];
+}) {
   return (
     <section className="mt-10">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -149,32 +167,43 @@ async function ResearchPanel() {
   );
 }
 
+/**
+ * Fetches the standards payload once and hands it to both blocks. A failure is
+ * reported as an empty citation list, which the panel renders as "arXiv not
+ * reachable" rather than as a passing check.
+ */
+function useStandards(): StandardsPayload | null {
+  const [payload, setPayload] = useState<StandardsPayload | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/standards?limit=6", { signal: controller.signal })
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error(String(response.status)))))
+      .then((body: { data?: StandardsPayload }) => setPayload(body.data ?? null))
+      .catch(() => {
+        if (!controller.signal.aborted) setPayload({ verification: [], research: null });
+      });
+    return () => controller.abort();
+  }, []);
+
+  return payload;
+}
+
 export function LiteraturePanels() {
+  const payload = useStandards();
+
   return (
     <>
-      <Suspense fallback={<CitationSkeleton />}>
-        <CitationPanel />
-      </Suspense>
-      <Suspense
-        fallback={
-          <div className="mt-10 h-40 animate-pulse rounded-sm bg-parchment-200" aria-hidden="true" />
-        }
-      >
-        <ResearchPanel />
-      </Suspense>
+      {payload === null ? <CitationSkeleton /> : <CitationPanel citations={payload.verification ?? []} />}
+      {payload === null ? <ResearchSkeleton /> : <ResearchPanel research={payload.research ?? null} />}
     </>
   );
 }
 
-/** The same streamed panel, rendered compactly for the landing page. */
+/** The same panel, rendered compactly for the landing page. */
 export function LandingResearchPanel() {
-  return (
-    <Suspense
-      fallback={
-        <div className="mt-8 h-32 animate-pulse rounded-sm bg-parchment-200" aria-hidden="true" />
-      }
-    >
-      <ResearchPanel />
-    </Suspense>
-  );
+  const payload = useStandards();
+
+  if (payload === null) return <ResearchSkeleton />;
+  return <ResearchPanel research={payload.research ?? null} />;
 }

@@ -170,9 +170,12 @@ async function seedAssay(host = "example.com", label = "Primary edge") {
   return stored;
 }
 
+// Booting the WASM Postgres engine and replaying the DDL is far slower than any
+// assertion here, and on a loaded machine it can exceed the default hook budget.
+// The generous timeout covers a cold start without letting a genuine hang pass.
 beforeAll(async () => {
   repo = await createTestRepository();
-});
+}, 180_000);
 
 beforeEach(() => {
   // Fresh ownership per test, shared engine per file.
