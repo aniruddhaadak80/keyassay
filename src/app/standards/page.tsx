@@ -40,13 +40,13 @@ export default async function StandardsPage() {
           <article className="sheet rounded-sm p-5">
             <h3 className="text-base text-ink-900">Quantum break cost of factoring</h3>
             <p className="mt-2 text-sm leading-relaxed text-ink-500">
-              For an n-bit RSA modulus, Gidney and EkerÃ¥ give the abstract-circuit cost as{" "}
+              For an n-bit RSA modulus, Gidney and Ekerå give the abstract-circuit cost as{" "}
               <code className="rounded-sm bg-parchment-200 px-1.5 py-0.5 font-mono text-xs text-ink-900">
-                3n + 0.002Â·nÂ·lg(n)
+                3n + 0.002·n·lg(n)
               </code>{" "}
               logical qubits and{" "}
               <code className="rounded-sm bg-parchment-200 px-1.5 py-0.5 font-mono text-xs text-ink-900">
-                0.3nÂ³ + 0.0005Â·nÂ³Â·lg(n)
+                0.3n³ + 0.0005·n³·lg(n)
               </code>{" "}
               Toffoli gates. The engine evaluates exactly these formulas, which is why it reproduces their
               numbers at RSA-2048 rather than approximating them.
@@ -102,7 +102,7 @@ export default async function StandardsPage() {
                     ["RSA 1024", "80", "1024"],
                     ["RSA 2048", "112", "2048"],
                     ["RSA 3072", "128", "3072"],
-                    ["RSA 4096", "â‰ˆ152", "4096"],
+                    ["RSA 4096", "≈152", "4096"],
                     ["ECDSA P-256 / Ed25519", "128", "3072"],
                     ["ECDSA P-384", "192", "7680"],
                     ["ECDSA P-521", "256", "15360"],
@@ -159,7 +159,7 @@ export default async function StandardsPage() {
         </div>
         <p className="mt-4 text-xs leading-relaxed text-ash-600">
           Weights sum to 1.0. The composite score is the weighted sum of each factor&apos;s normalised
-          value, scaled to 0â€“100. Grades: bullion at 80+, sterling at 62+, base at 42+, corroded below.
+          value, scaled to 0–100. Grades: bullion at 80+, sterling at 62+, base at 42+, corroded below.
         </p>
       </section>
 

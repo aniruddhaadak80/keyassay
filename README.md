@@ -17,7 +17,7 @@ traffic it has already sent stays unreadable to a quantum computer.**
 [![Certificate Transparency](https://img.shields.io/badge/data-crt.sh-e07b39?style=flat-square)](https://crt.sh)
 [![arXiv](https://img.shields.io/badge/citations-arXiv%20verified-a78bfa?style=flat-square)](https://arxiv.org)
 [![MCP](https://img.shields.io/badge/agent-9%20MCP%20tools-8b5cf6?style=flat-square)](#agent-interface)
-[![Tests](https://img.shields.io/badge/tests-90%20passing-brightgreen?style=flat-square)](tests)
+[![Tests](https://img.shields.io/badge/tests-91%20passing-brightgreen?style=flat-square)](tests)
 [![License: MIT](https://img.shields.io/badge/license-MIT-f0b429?style=flat-square)](LICENSE)
 
 [Live App](https://keyassay.vercel.app) ·
@@ -42,6 +42,30 @@ traffic you have already emitted will still be unbroken in 2040**, the year by w
 today has to have become unreadable.
 
 Keyassay answers that for a real endpoint, in about two seconds, with the arithmetic shown.
+
+![The Keyassay landing page: the harvest-now-decrypt-later premise, a hostname field, and the three citations the cost model rests on](docs/01-landing.png)
+
+<table>
+<tr>
+<td width="50%"><img src="docs/02-detail.png" alt="An assay certificate for github.com: seven weighted factors, each with its measured value, its contribution and its citation, beside the decision panel and the export buttons"></td>
+<td width="50%"><img src="docs/03-horizon.png" alt="The horizon dial set to 2035, with each stored assay re-rated and its decision shown"></td>
+</tr>
+<tr>
+<td align="center"><em>The certificate: seven weighted factors, every one cited.</em></td>
+<td align="center"><em>Move the horizon; the ledger re-rates.</em></td>
+</tr>
+<tr>
+<td><img src="docs/04-agent.png" alt="The agent page after initialize: the server info block and the catalogue of nine MCP tools with their input schemas"></td>
+<td><img src="docs/06-mobile-detail.png" alt="The same certificate on a 393 by 851 mobile viewport"></td>
+</tr>
+<tr>
+<td align="center"><em>Nine MCP tools, live against the deployment.</em></td>
+<td align="center"><em>The certificate on a phone.</em></td>
+</tr>
+</table>
+
+Every screenshot above is the live deployment at [keyassay.vercel.app](https://keyassay.vercel.app), with a
+real handshake against a real host. Regenerate them with `node scripts/capture-screenshots.mjs`.
 
 | What you get | Why it matters |
 | --- | --- |
@@ -94,7 +118,7 @@ partial unique indexes and transactions you exercise locally are the ones that r
 | --- | --- |
 | `npm run typecheck` | `tsc --noEmit`, strict mode |
 | `npm run lint` | ESLint flat config, no rule suppressions |
-| `npm run test` | 90 unit and integration tests, no network needed |
+| `npm run test` | 91 unit and integration tests, no network needed |
 | `npm run build` | Production build |
 | `npm run smoke` | Playwright browser journey, desktop and mobile |
 | `npm run verify:live` | Real HTTP proof against a deployed alias |

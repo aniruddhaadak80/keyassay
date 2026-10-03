@@ -52,12 +52,13 @@ export default async function LedgerPage({
     includeDeleted: firstParam(params.deleted) === "true",
   };
 
-  // One round trip for the page and its total, then one for the health line. The
-  // policy is needed to re-rate, so it is fetched alongside.
-  const [pageResult, policy, health] = await Promise.all([
+  // One round trip for the page and its total, plus the policy needed to re-rate.
+  // No health probe here: /api/health already reports store health, and running a
+  // third set of queries on a list page is what exhausts a small connection pool
+  // under serverless concurrency.
+  const [pageResult, policy] = await Promise.all([
     repo.listAssaysPage(sessionId, query),
     loadPolicy({ repo, sessionId }),
-    repo.healthCheck(),
   ]);
 
   const total = pageResult.total;
@@ -233,8 +234,10 @@ export default async function LedgerPage({
       )}
 
       <p className="mt-10 border-t border-parchment-300 pt-4 font-mono text-[0.66rem] text-ash-600">
-        Store: {repo.kind} · {health.ok ? health.detail : "store degraded"} · horizon {policy.horizonYear} ·
-        cost model {policy.costModel}
+        Store: {repo.kind} · horizon {policy.horizonYear} · cost model {policy.costModel} ·{" "}
+        <a href="/api/health" className="underline underline-offset-4">
+          store health
+        </a>
       </p>
     </div>
   );

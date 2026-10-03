@@ -13,11 +13,15 @@ write requests, so there are three things worth reporting.
 
 ## Reporting a vulnerability
 
-Email **security@keyassay.dev** with a description, steps to reproduce, and the impact you believe it
-has. Do not open a public issue for anything in the first two classes.
+Report privately through GitHub's security advisory form for this repository:
 
-You can expect an acknowledgement within 72 hours and an assessment within seven days. Please give us
-90 days before public disclosure.
+**Report a vulnerability** → <https://github.com/aniruddhaadak80/keyassay/security/advisories/new>
+
+Include a description, steps to reproduce, and the impact you believe it has. Do not open a public
+issue for anything in the first two classes above.
+
+This is a single-maintainer project with no response-time commitment. If a report is not fixed, you are
+free to disclose it publicly; please open an issue at the same time so the record exists.
 
 ## What is already handled
 

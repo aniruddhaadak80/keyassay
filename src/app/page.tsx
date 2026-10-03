@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { ArrowRightIcon, ShieldQuestionIcon, ClockIcon, ScrollIcon } from "@/components/icons";
 import { getRepository } from "@/lib/db";
 import { getSessionId } from "@/lib/session";
-import { loadPolicy, rerateStored } from "@/lib/service";
 import { ASSAY_ENGINE_CITATIONS, DEFAULT_POLICY, ENGINE_VERSION } from "@/lib/engine/assay";
 import { siteConfig } from "@/lib/config";
 import { AssayForm } from "@/components/assay-form";
@@ -15,7 +14,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Keyassay â€” know the year your TLS stops being secret",
+  title: "Keyassay — know the year your TLS stops being secret",
   description:
     "Submit a hostname. Keyassay performs a real TLS handshake, reads the certificate chain and Certificate Transparency history, then certifies how long the harvested traffic stays unreadable to a quantum computer.",
   alternates: { canonical: `${siteConfig.liveUrl}/` },
@@ -42,7 +41,7 @@ export default async function LandingPage() {
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-500">
             Every TLS session an adversary records today becomes readable the day a
-            cryptographically relevant quantum computer exists â€” if the key it protects has not been
+            cryptographically relevant quantum computer exists — if the key it protects has not been
             replaced by then. Rotating the certificate does not help, because the captured traffic is
             already in their hands. Keyassay names the year each of your public endpoints stops being
             secret, and certifies the answer with a sealed, replayable record.
@@ -63,7 +62,7 @@ export default async function LandingPage() {
             <div>
               <dt className="ledger-head">Cost model</dt>
               <dd className="mt-1 text-sm leading-relaxed text-ink-700">
-                Gidney &amp; EkerÃ¥ {`arXiv:1905.09749`}, revised by Gidney {`arXiv:2505.15917`}. Both
+                Gidney &amp; Ekerå {`arXiv:1905.09749`}, revised by Gidney {`arXiv:2505.15917`}. Both
                 verified against arXiv at runtime.
               </dd>
             </div>
@@ -77,7 +76,7 @@ export default async function LandingPage() {
             <div>
               <dt className="ledger-head">Engine</dt>
               <dd className="mt-1 font-mono text-sm text-ink-700">
-                {ENGINE_VERSION} Â· seven weighted factors, every one cited
+                {ENGINE_VERSION} · seven weighted factors, every one cited
               </dd>
             </div>
           </dl>
@@ -87,7 +86,7 @@ export default async function LandingPage() {
           <AssayForm />
           {ledgerSummary ? (
             <p className="mt-3 text-xs text-ink-400">
-              {ledgerSummary.count} assay{ledgerSummary.count === 1 ? "" : "s"} in this session Â·{" "}
+              {ledgerSummary.count} assay{ledgerSummary.count === 1 ? "" : "s"} in this session ·{" "}
               <Link href="/ledger" className="underline underline-offset-4">
                 open the ledger
               </Link>
@@ -186,19 +185,19 @@ export default async function LandingPage() {
                   <a href="/agent" className="underline underline-offset-4">
                     Try the agent console
                   </a>{" "}
-                  â€” preloaded calls against the live deployment
+                  — preloaded calls against the live deployment
                 </li>
                 <li>
                   <a href="/horizon" className="underline underline-offset-4">
                     Move the horizon dial
                   </a>{" "}
-                  â€” re-rate the whole ledger
+                  — re-rate the whole ledger
                 </li>
                 <li>
                   <a href="/standards" className="underline underline-offset-4">
                     Read the cost model
                   </a>{" "}
-                  â€” every constant, with its citation verified live
+                  — every constant, with its citation verified live
                 </li>
               </ul>
             </div>
@@ -216,7 +215,7 @@ export default async function LandingPage() {
             </div>
           </div>
           <p className="mt-6 border-t border-parchment-300 pt-4 font-mono text-[0.66rem] leading-relaxed text-ash-600">
-            {ASSAY_ENGINE_CITATIONS.ir8547} Â· default horizon {DEFAULT_POLICY.horizonYear} Â·{" "}
+            {ASSAY_ENGINE_CITATIONS.ir8547} · default horizon {DEFAULT_POLICY.horizonYear} ·{" "}
             {ASSayCitationsNote()}
           </p>
         </div>
@@ -238,9 +237,6 @@ async function summariseLedger(): Promise<{ count: number } | null> {
     const sessionId = await getSessionId();
     const repo = await getRepository();
     const count = await repo.countAssays(sessionId, { limit: 1, offset: 0, includeDeleted: false });
-    // Touch the policy so a cold start warms both adapters before first use.
-    await loadPolicy({ repo, sessionId });
-    void rerateStored;
     return { count };
   } catch {
     return null;

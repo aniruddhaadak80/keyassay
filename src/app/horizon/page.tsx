@@ -31,39 +31,33 @@ export const metadata: Metadata = {
 export default async function HorizonPage() {
   const sessionId = await getSessionId();
   const repo = await getRepository();
-  const policy = await loadPolicy({ repo, sessionId });
+  const [policy, pageResult] = await Promise.all([
+    loadPolicy({ repo, sessionId }),
+    repo.listAssaysPage(sessionId, { limit: 100, offset: 0, includeDeleted: false }),
+  ]);
   const currentYear = new Date().getFullYear();
 
-  const summaries = await repo.listAssays(sessionId, {
-    limit: 100,
-    offset: 0,
-    includeDeleted: false,
+  // The page arrives as full rows from a single query, so re-rating costs no
+  // further round trips. Fetching each row separately would be an N+1 that
+  // exhausts the connection pool under serverless concurrency.
+  const complete = pageResult.items.map((assay) => {
+    const result = rerateStored(assay, policy, currentYear);
+    return {
+      dial: {
+        id: assay.id,
+        host: assay.host,
+        label: assay.label,
+        storedGrade: assay.grade,
+        grade: result.grade,
+        score: result.score,
+        exposed: result.exposure.exposed,
+        breakYear: result.exposure.breakYear,
+        decision: assay.decision,
+      } as DialAssay,
+      assay,
+      result,
+    };
   });
-
-  const entries = await Promise.all(
-    summaries.map(async (summary) => {
-      const assay = await repo.getAssay(sessionId, summary.id, true);
-      if (!assay) return null;
-      const result = rerateStored(assay, policy, currentYear);
-      return {
-        dial: {
-          id: assay.id,
-          host: assay.host,
-          label: assay.label,
-          storedGrade: assay.grade,
-          grade: result.grade,
-          score: result.score,
-          exposed: result.exposure.exposed,
-          breakYear: result.exposure.breakYear,
-          decision: assay.decision,
-        } as DialAssay,
-        assay,
-        result,
-      };
-    }),
-  );
-
-  const complete = entries.filter((entry): entry is NonNullable<typeof entry> => entry !== null);
   const dials = complete.map((entry) => entry.dial);
   const exposed = complete.filter((entry) => entry.result.exposure.exposed);
 

@@ -45,6 +45,25 @@ jobs:
     timeout-minutes: 25
     needs: quality
 
+    # The embedded PGlite adapter is refused under `next start`, and it crashes a
+    # bundled production server outright, so the browser job runs against a real
+    # Postgres. The schema is created idempotently on first connect, so no
+    # migration step is needed.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: keyassay
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d keyassay"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
     steps:
       - uses: actions/checkout@v4
 
@@ -62,17 +81,13 @@ jobs:
       - name: Start the production build
         run: |
           npm run build
-          # The embedded adapter is refused in production mode by design, so the
-          # browser job opts in explicitly. Nothing is durable here and that is
-          # fine: the hosted path is verified separately by verify:live.
-          KEYASSAY_ALLOW_EMBEDDED=1 PGLITE_DIR=.pglite npm start &
+          npm start &
           for i in $(seq 1 60); do
             if curl -fsS http://127.0.0.1:3000/api/health > /dev/null; then break; fi
             sleep 1
           done
         env:
-          KEYASSAY_ALLOW_EMBEDDED: "1"
-          PGLITE_DIR: .pglite
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/keyassay
 
       - name: Browser journey, desktop and mobile
         run: npx playwright test

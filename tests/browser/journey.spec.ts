@@ -180,9 +180,11 @@ test.describe("Keyassay primary journey", () => {
       const response = await page.goto(path);
       expect(response?.status(), `${path} should return 200`).toBe(200);
 
-      // Every route must expose exactly one top-level heading.
+      // Every route must expose exactly one top-level heading. These pages stream
+      // (the literature panels arrive behind a Suspense boundary), so this waits
+      // for the stream rather than counting the shell.
       const headings = page.getByRole("heading", { level: 1 });
-      expect(await headings.count(), `${path} should have exactly one h1`).toBe(1);
+      await expect(headings, `${path} should have exactly one h1`).toHaveCount(1);
       await expect(headings.first()).toBeVisible();
 
       // The repository must be reachable from every page, in the nav or footer.
