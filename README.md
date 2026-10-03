@@ -89,11 +89,16 @@ real handshake against a real host. Regenerate them with `node scripts/capture-s
   Drag the dial and every stored assay re-rates through the same engine.
 - **Certificates verified against arXiv.** The two papers the cost model rests on are re-checked
   against the arXiv API at runtime, so a superseded citation shows up as a failed check instead of a
-  confident-sounding string.
+  confident-sounding string. Any other identifier can be checked the same way from `/standards`, so a
+  citation can be audited rather than taken on trust.
 - **Nine MCP tools over one service layer.** An agent's mutation runs the same code path as the button,
   including the real handshake and the same seal.
 - **Tombstones, not erasures.** Deleting a record keeps its audit chain, so an auditor asking about an
   assay six months later finds the evidence rather than a hole.
+- **Accessible by construction, and checked.** Every route is asserted for landmarks, a single `h1`, a
+  gap-free heading outline, named controls, labelled fields, a working skip link and keyboard reachability
+  of the primary action. That sweep is part of `npm run smoke`, so a regression fails CI rather than
+  shipping.
 
 ---
 
@@ -120,8 +125,8 @@ partial unique indexes and transactions you exercise locally are the ones that r
 | `npm run lint` | ESLint flat config, no rule suppressions |
 | `npm run test` | 99 unit and integration tests, no network needed |
 | `npm run build` | Production build |
-| `npm run smoke` | Playwright browser journey, desktop and mobile |
-| `npm run verify:live` | Real HTTP proof against a deployed alias |
+| `npm run smoke` | Playwright browser journey plus an accessibility sweep, desktop and mobile |
+| `npm run verify:live` | Real HTTP proof against a deployed alias, 80 checks |
 
 ### Production environment variables
 

@@ -5,6 +5,7 @@ import { siteConfig } from "@/lib/config";
 import { DataRow } from "@/components/grade-mark";
 import { SectionHeading } from "@/components/states";
 import { LiteraturePanels } from "@/components/literature-panels";
+import { CitationCheck } from "@/components/citation-check";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -208,6 +209,18 @@ export default async function StandardsPage() {
             </Link>
             .
           </p>
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <div className="sheet rounded-sm p-5">
+          <p className="ledger-head">Audit any citation</p>
+          <p className="mt-1.5 text-sm leading-relaxed text-ink-500">
+            The panel above checks the two papers this engine rests on. Put any other identifier in and
+            the same code path reports what arXiv actually holds for it, so a reference can be checked
+            rather than taken on trust.
+          </p>
+          <CitationCheck />
         </div>
       </section>
     </div>

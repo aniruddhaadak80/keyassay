@@ -26,15 +26,24 @@ export function EmptyState({
   title,
   body,
   action,
+  level = 2,
 }: {
   title: string;
   body: string;
   action?: { href: string; label: string };
+  /**
+   * Heading level for the title. This component usually stands in for a list
+   * directly beneath the page's single h1, which makes 2 the correct level; a
+   * caller rendering it inside an existing section passes 3 so the document
+   * outline never skips a level.
+   */
+  level?: 2 | 3;
 }) {
+  const Heading = level === 2 ? "h2" : "h3";
   return (
     <div className="sheet rounded-sm px-6 py-12 text-center">
       <InboxIcon className="mx-auto h-6 w-6 text-ink-300" aria-hidden="true" />
-      <h3 className="mt-4 text-lg text-ink-900">{title}</h3>
+      <Heading className="mt-4 text-lg text-ink-900">{title}</Heading>
       <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-500">{body}</p>
       {action ? (
         <Link

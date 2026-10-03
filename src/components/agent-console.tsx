@@ -322,7 +322,9 @@ export function AgentConsole({ tools }: { tools: ConsoleTool[] }) {
       </section>
 
       <section className="lg:col-span-2">
-        <p className="ledger-head">Published tool schemas ({tools.length})</p>
+        {/* A real heading, not a styled paragraph: each tool below is an h3, so
+            without an h2 here the document outline skips a level. */}
+        <h2 className="ledger-head">Published tool schemas ({tools.length})</h2>
         <p className="mt-1.5 text-sm leading-relaxed text-ink-500">
           The same catalogue <code className="rounded-sm bg-parchment-200 px-1.5 py-0.5 font-mono text-xs">/api/tools</code>{" "}
           serves as JSON, and the same dispatcher validates incoming arguments against these schemas.

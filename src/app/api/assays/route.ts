@@ -87,30 +87,4 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   });
 }
 
-/** Tool-driven creation, used by the in-page agent console. */
-export async function PUT(request: NextRequest): Promise<NextResponse> {
-  return await route(async () => {
-    const sessionId = await getSessionId();
-    let body: Record<string, unknown>;
-    try {
-      body = (await request.json()) as Record<string, unknown>;
-    } catch {
-      return fail("invalid_json", "Request body must be valid JSON.", 400);
-    }
-    const repo = await getRepository();
-    const outcome = await assayHost(
-      { repo, sessionId },
-      {
-        host: String(body.host ?? ""),
-        label: typeof body.label === "string" ? body.label : undefined,
-        idempotencyKey:
-          typeof body.idempotencyKey === "string" && body.idempotencyKey.length > 0
-            ? body.idempotencyKey
-            : undefined,
-      },
-    );
-    return ok({ assay: outcome.assay, degraded: outcome.degraded, warning: outcome.tlsWarning }, 201);
-  });
-}
-
 export { parseEnum, parseUuid, fromError };

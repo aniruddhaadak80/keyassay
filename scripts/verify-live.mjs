@@ -29,6 +29,8 @@ if (!BASE) {
 
 const REPO_URL = "https://github.com/aniruddhaadak80/keyassay";
 const TEST_HOST = "github.com";
+/** The revised factoring-cost paper the engine cites, used to exercise the citation form. */
+const GIDNEY_2025_ARXIV = "2505.15917";
 
 /**
  * A minimal cookie jar.
@@ -142,6 +144,34 @@ async function main() {
     "engine citations are reported, one per paper",
     Array.isArray(standardsBody.verification) && standardsBody.verification.length === 2,
     JSON.stringify(standardsBody.verification),
+  );
+
+  // The arbitrary-citation endpoint is driven by the form on /standards, so it
+  // is verified for real rather than assumed to work because the route exists.
+  const citeBad = await http("/api/standards", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ arxivId: "not-an-id" }),
+  });
+  check("POST /api/standards rejects a malformed identifier", citeBad.status === 400);
+
+  const citeReal = await http("/api/standards", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ arxivId: GIDNEY_2025_ARXIV }),
+  });
+  const citeBody = await citeReal.json();
+  check(
+    "POST /api/standards verifies a real identifier",
+    citeReal.status === 200 &&
+      citeBody.verification?.arxivId === GIDNEY_2025_ARXIV &&
+      typeof citeBody.verification?.found === "boolean" &&
+      typeof citeBody.verification?.url === "string",
+    JSON.stringify(citeBody.verification),
+  );
+  check(
+    "a verified citation reports a title or an explicit reason",
+    Boolean(citeBody.verification?.title) || Boolean(citeBody.verification?.reason),
   );
   check(
     "each citation carries an explicit live or fallback status",
