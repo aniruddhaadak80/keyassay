@@ -17,7 +17,7 @@ traffic it has already sent stays unreadable to a quantum computer.**
 [![Certificate Transparency](https://img.shields.io/badge/data-crt.sh-e07b39?style=flat-square)](https://crt.sh)
 [![arXiv](https://img.shields.io/badge/citations-arXiv%20verified-a78bfa?style=flat-square)](https://arxiv.org)
 [![MCP](https://img.shields.io/badge/agent-9%20MCP%20tools-8b5cf6?style=flat-square)](#agent-interface)
-[![Tests](https://img.shields.io/badge/tests-91%20passing-brightgreen?style=flat-square)](tests)
+[![Tests](https://img.shields.io/badge/tests-99%20passing-brightgreen?style=flat-square)](tests)
 [![License: MIT](https://img.shields.io/badge/license-MIT-f0b429?style=flat-square)](LICENSE)
 
 [Live App](https://keyassay.vercel.app) ·
@@ -118,7 +118,7 @@ partial unique indexes and transactions you exercise locally are the ones that r
 | --- | --- |
 | `npm run typecheck` | `tsc --noEmit`, strict mode |
 | `npm run lint` | ESLint flat config, no rule suppressions |
-| `npm run test` | 91 unit and integration tests, no network needed |
+| `npm run test` | 99 unit and integration tests, no network needed |
 | `npm run build` | Production build |
 | `npm run smoke` | Playwright browser journey, desktop and mobile |
 | `npm run verify:live` | Real HTTP proof against a deployed alias |
