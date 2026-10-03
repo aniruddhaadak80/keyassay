@@ -1,0 +1,9 @@
+# Normalise line endings so the repository stores LF and Windows checkouts do
+# not produce whole-file diffs.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary

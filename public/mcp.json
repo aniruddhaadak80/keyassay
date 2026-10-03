@@ -1,0 +1,173 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-06-18/server.schema.json",
+  "name": "keyassay",
+  "description": "Assay a live TLS endpoint for quantum-vulnerable key material and certify how long harvested traffic stays unreadable.",
+  "version": "1.0.0",
+  "endpoint": "https://keyassay.vercel.app/api/mcp",
+  "transport": {
+    "type": "streamable-http",
+    "url": "https://keyassay.vercel.app/api/mcp",
+    "protocolVersion": "2025-06-18",
+    "methods": ["initialize", "tools/list", "tools/call", "ping"],
+    "authentication": "none — ownership is an anonymous HTTP-only session cookie"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aniruddhaadak80/keyassay"
+  },
+  "tools": [
+    {
+      "name": "assay_host",
+      "description": "Perform a real TLS handshake with a hostname, read its certificate chain and Certificate Transparency history, run the deterministic assay engine, persist the result and seal it.",
+      "kind": "mutation",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "host": {
+            "type": "string",
+            "maxLength": 253,
+            "description": "Hostname to assay, for example example.com. No scheme, path or credentials."
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "Short name for this endpoint in the ledger."
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 600,
+            "description": "Free-text note stored with the assay."
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "Retry-safe key. Replaying it returns the original assay instead of creating a second one."
+          }
+        },
+        "required": ["host"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_assays",
+      "description": "Return the assays owned by the current session, with grade, score, modelled break year, decision and seal.",
+      "kind": "read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "grade": { "type": "string", "enum": ["bullion", "sterling", "base", "corroded"] },
+          "decision": {
+            "type": "string",
+            "enum": ["migrate-first", "plan-hybrid", "monitor", "accepted"]
+          },
+          "search": { "type": "string", "maxLength": 120 },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 100 },
+          "offset": { "type": "integer", "minimum": 0, "maximum": 10000 }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_assay",
+      "description": "Return one assay with its observation payload, itemised factors, citations, exposure analysis and optionally its sealed audit trail.",
+      "kind": "read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "include_events": { "type": "boolean" }
+        },
+        "required": ["id"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "rerate_assay",
+      "description": "Recompute an assay under an overridden confidentiality horizon or qubit growth rate without changing the stored measurement.",
+      "kind": "analysis",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "horizon_year": { "type": "integer", "minimum": 2026, "maximum": 2200 },
+          "capability_growth": { "type": "number", "minimum": 0.01, "maximum": 5 },
+          "persist": { "type": "boolean" }
+        },
+        "required": ["id"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "record_decision",
+      "description": "Record a migration verdict against an assay, appending a signed audit event.",
+      "kind": "mutation",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "decision": {
+            "type": "string",
+            "enum": ["migrate-first", "plan-hybrid", "monitor", "accepted"]
+          },
+          "notes": { "type": "string", "maxLength": 600 }
+        },
+        "required": ["id", "decision"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "delete_assay",
+      "description": "Soft-delete an assay, retaining its tombstone and audit chain. Requires confirm=true.",
+      "kind": "mutation",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "confirm": { "type": "boolean", "description": "Must be true to proceed." }
+        },
+        "required": ["id", "confirm"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "verify_integrity",
+      "description": "Recompute the SHA-384 hash chain for one assay, or every assay in the session, and report the first broken link.",
+      "kind": "read",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "id": { "type": "string", "format": "uuid" } },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_policy",
+      "description": "Read or persist the confidentiality horizon, cost anchor, qubit growth assumption and classical security floor.",
+      "kind": "mutation",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "horizon_year": { "type": "integer", "minimum": 2026, "maximum": 2200 },
+          "cost_model": { "type": "string", "enum": ["gidney-ekera-2019", "gidney-2025"] },
+          "capability_base_qubits": { "type": "integer", "minimum": 1, "maximum": 100000000 },
+          "capability_growth": { "type": "number", "minimum": 0.01, "maximum": 5 },
+          "minimum_classical_bits": { "type": "integer", "minimum": 80, "maximum": 256 }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "export_certificate",
+      "description": "Render the sealed certificate for an assay as json, html or csv.",
+      "kind": "read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "format": { "type": "string", "enum": ["json", "html", "csv"] }
+        },
+        "required": ["id"],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

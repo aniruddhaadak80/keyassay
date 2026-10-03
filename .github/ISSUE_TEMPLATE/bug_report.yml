@@ -1,0 +1,53 @@
+name: Bug report
+description: Something behaves differently from what the README or the certificate says
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing this. The most useful details are the engine version and
+        the policy in force, because both change the numbers.
+  - type: input
+    id: host
+    attributes:
+      label: Hostname
+      description: Which hostname did you assay?
+      placeholder: example.com
+    validations:
+      required: true
+  - type: input
+    id: engine-version
+    attributes:
+      label: Engine version
+      description: The `engineVersion` field in the API response or on the certificate.
+      placeholder: keyassay/1.0.0
+    validations:
+      required: true
+  - type: input
+    id: policy
+    attributes:
+      label: Policy in force
+      description: The horizon, cost model and growth rate you had set.
+      placeholder: horizon 2040, gidney-2025, growth 35%
+    validations:
+      required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead?
+      description: Include the exact error message if there was one.
+    validations:
+      required: true
+  - type: checkboxes
+    id: live
+    attributes:
+      label: Sources
+      options:
+        - label: The TLS handshake was marked Live (not Fallback)
+        - label: Certificate Transparency was marked Live

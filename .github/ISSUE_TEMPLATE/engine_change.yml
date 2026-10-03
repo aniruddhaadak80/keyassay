@@ -1,0 +1,54 @@
+name: Engine or citation change
+description: A constant, weight, or assumption in the assay engine changes
+labels: ["engine"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Changes to `src/lib/engine/constants.ts` and the factor weights change every
+        certificate the product issues. They need a citation and a test.
+  - type: textarea
+    id: change
+    attributes:
+      label: What changes?
+      description: The constant, weight or assumption, and where it moves.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source
+      description: |
+        A URL or citation supporting the new value. If it is a published figure,
+        say which paper and which table.
+      placeholder: Author, title, arXiv id or section
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of change
+      options:
+        - Published constant (Shor cost, NIST equivalence, IR 8547 dates)
+        - Risk assumption (horizon, qubit growth, classical floor)
+        - Factor weight
+        - Bug fix in the calculation
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Effect on existing certificates
+      description: |
+        Certificates already issued keep the engine version and the constants they
+        were graded under. Describe what a reader should expect when comparing old
+        and new grades.
+    validations:
+      required: true
+  - type: checkboxes
+    id: tests
+    attributes:
+      label: Checklist
+      options:
+        - label: A unit test covers the new value, including the boundary case
+        - label: `npm run test`, `npm run lint` and `npm run build` pass locally

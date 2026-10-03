@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: typecheck, lint, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit and integration tests
+        run: npm run test
+
+      - name: Production build
+        run: npm run build
+
+  browser:
+    name: browser journey
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: quality
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start the production build
+        run: |
+          npm run build
+          # The embedded adapter is refused in production mode by design, so the
+          # browser job opts in explicitly. Nothing is durable here and that is
+          # fine: the hosted path is verified separately by verify:live.
+          KEYASSAY_ALLOW_EMBEDDED=1 PGLITE_DIR=.pglite npm start &
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:3000/api/health > /dev/null; then break; fi
+            sleep 1
+          done
+        env:
+          KEYASSAY_ALLOW_EMBEDDED: "1"
+          PGLITE_DIR: .pglite
+
+      - name: Browser journey, desktop and mobile
+        run: npx playwright test
+        env:
+          BASE_URL: http://127.0.0.1:3000

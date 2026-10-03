@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/aniruddhaadak80/keyassay/blob/main/SECURITY.md
+    about: Report privately. Please do not open a public issue for a vulnerability.
+  - name: Question or discussion
+    url: https://github.com/aniruddhaadak80/keyassay/discussions
+    about: Ask about the cost model, the horizon assumption, or how to read a certificate.
